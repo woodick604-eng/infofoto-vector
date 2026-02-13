@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/
+.env
+
+# Firebase
+.firebase/
+.firebaserc
+firebase-debug.log*
+firestore-debug.log*
+
+# App Specific
+container/uploads/*
+!container/uploads/.gitkeep
+container/reports/*
+!container/reports/.gitkeep
+container/Uploads/master/*
+!container/Uploads/master/.gitkeep
+container/Uploads/work/*
+!container/Uploads/work/.gitkeep
+container/Uploads/edited/*
+!container/Uploads/edited/.gitkeep
+
+# macOS
+.DS_Store
+
+# Word docs
+*.docx

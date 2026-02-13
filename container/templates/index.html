@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <title>Generador d'Informes Fotogràfics</title>
+    <style>
+        body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;margin:0;background:#708090;color:#fff;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:20px 0}
+        .container{width:90%;max-width:600px;padding:30px;background:rgba(0,0,0,.2);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1)}
+        h1{text-align:center;margin-top:0;font-weight:600}
+        .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
+        .form-group{display:flex;flex-direction:column}
+        .full-width{grid-column:1 / -1}
+        label{margin-bottom:8px;font-size:14px;font-weight:500}
+        .input-wrapper{position:relative;display:flex;align-items:center}
+        input[type=text],input[type=file]{background-color:#536878;color:#fff;border:1px solid #98a9b9;padding:12px;border-radius:6px;font-size:16px;width:100%;box-sizing:border-box}
+        input[type=text]:focus{outline:0;border-color:#fff}
+        input[type=file]::-webkit-file-upload-button{background-color:#f6f8fa;color:#24292e;border:none;padding:10px 14px;border-radius:6px;cursor:pointer;margin-right:10px}
+        button[type=submit]{grid-column:1 / -1;padding:14px;font-size:18px;font-weight:600;border:none;border-radius:6px;cursor:pointer;background-color:#28a745;color:#fff;transition:background-color .2s}
+        button[type=submit]:hover{background-color:#218838}
+        .radio-group{background-color:#536878;border-radius:6px;padding:5px;display:flex;justify-content:space-around}
+        .radio-group input[type=radio]{display:none}
+        .radio-group label{position:relative;flex:1;text-align:center;padding:10px 30px 10px 10px;margin:0;border-radius:4px;cursor:pointer;transition:background-color .2s}
+        .radio-group input[type=radio]:checked+label{background-color:#708090;font-weight:700}
+        .status-icon{position:absolute;right:12px;top:50%;transform:translateY(-50%) scale(.5);width:20px;height:20px;opacity:0;transition:all .2s ease-in-out}
+        .status-icon.valid{opacity:1;transform:translateY(-50%) scale(1)}
+        .status-icon.valid::after,.status-icon.valid::before{content:'';position:absolute;background-color:#28a745;border-radius:2px}
+        .status-icon.valid::before{width:3px;height:10px;left:5px;top:7px;transform:rotate(-45deg)}
+        .status-icon.valid::after{width:3px;height:16px;left:11px;top:1px;transform:rotate(45deg)}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Informe Fotogràfic</h1>
+        <form action="/upload" method="post" enctype="multipart/form-data">
+            <div class="form-grid">
+                <div class="form-group"><label for="nat">NAT</label><div class="input-wrapper"><input type="text" id="nat" name="nat" placeholder="Ex: 2435/2025" class="validate-me"><span class="status-icon"></span></div></div>
+                <div class="form-group"><label for="dil">Núm. Diligència</label><div class="input-wrapper"><input type="text" id="dil" name="dil" placeholder="Ex: 12345" class="validate-me"><span class="status-icon"></span></div></div>
+                <div class="form-group"><label for="tip1">TIP Agent 1</label><div class="input-wrapper"><input type="text" id="tip1" name="tip1" placeholder="Ex: 54321" class="validate-me"><span class="status-icon"></span></div></div>
+                <div class="form-group"><label for="tip2">TIP Agent 2 (Opcional)</label><div class="input-wrapper"><input type="text" id="tip2" name="tip2" placeholder="Ex: 98765" class="validate-me"><span class="status-icon"></span></div></div>
+                <div class="form-group full-width"><label for="jutjat">Jutjat de destinació</label><div class="input-wrapper"><input type="text" id="jutjat" name="jutjat" placeholder="Ex: Jutjat d'Instrucció núm. 3" class="validate-me"><span class="status-icon"></span></div></div>
+                <div class="form-group full-width"><label for="localitat">Localitat del Jutjat</label><div class="input-wrapper"><input type="text" id="localitat" name="localitat" placeholder="Ex: Mataró" class="validate-me"><span class="status-icon"></span></div></div>
+                <div class="form-group full-width"><label>Destinació</label><div class="radio-group"><input type="radio" id="qualitat_atenea" name="qualitat" value="atenea" class="validate-radio" checked><label for="qualitat_atenea">Atenea<span class="status-icon"></span></label><input type="radio" id="qualitat_vector" name="qualitat" value="vector" class="validate-radio"><label for="qualitat_vector">Vector<span class="status-icon"></span></label></div></div>
+                <div class="form-group full-width"><label for="photos">Selecciona les fotografies</label><div class="input-wrapper"><input type="file" id="photos" name="photos" multiple required class="validate-me"><span class="status-icon"></span></div></div>
+                <button type="submit">Pujar Imatges i Continuar</button>
+            </div>
+        </form>
+    </div>
+<script>
+document.addEventListener("DOMContentLoaded",()=>{const t=document.querySelectorAll(".validate-me"),e=t=>{const e=t.closest(".input-wrapper");if(!e)return;const a=e.querySelector(".status-icon");if(!a)return;let l=!1;"file"===t.type?t.files.length>0&&(l=!0):""!==t.value.trim()&&(l=!0),a.classList.toggle("valid",l)};t.forEach(t=>{t.addEventListener("input",()=>e(t)),t.addEventListener("change",()=>e(t))});const a=document.querySelectorAll(".validate-radio"),l=()=>{a.forEach(t=>{const e=document.querySelector(`label[for="${t.id}"]`),a=e.querySelector(".status-icon");a.classList.toggle("valid",t.checked)})};a.forEach(t=>{t.addEventListener("change",l)}),l()});
+</script>
+</body>
+</html>
