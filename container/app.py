@@ -37,9 +37,10 @@ if not firebase_admin._apps:
         except Exception:
             pass
 
-db = firestore.client() if firebase_admin._apps else None
+db = firestore.client(database_id='infofotovector') if firebase_admin._apps else None
 
 def get_bucket():
+
     if not firebase_admin._apps: return None
     try: return storage.bucket()
     except Exception: return None
@@ -55,6 +56,24 @@ LOGO_PATH   = STATIC_DIR / "mossos.jpg"
 
 for d in (UPLOAD_DIR, MASTER_DIR, WORK_DIR, EDITED_DIR, REPORTS_DIR, STATIC_DIR):
     d.mkdir(parents=True, exist_ok=True)
+
+# Helper functions for Storage
+def storage_save(local_path: Path, storage_rel_path: str):
+    if not IS_PROD: return
+    bucket = get_bucket()
+    if not bucket: return
+    blob = bucket.blob(storage_rel_path)
+    blob.upload_from_filename(str(local_path))
+
+def storage_download(storage_rel_path: str, local_path: Path):
+    if not IS_PROD: return False
+    bucket = get_bucket()
+    if not bucket: return False
+    blob = bucket.blob(storage_rel_path)
+    if blob.exists():
+        blob.download_to_filename(str(local_path))
+        return True
+    return False
 
 app = Flask(__name__, template_folder=str(BASE_DIR/"templates"), static_folder=str(BASE_DIR/"static"))
 app.secret_key = os.environ.get("SECRET_KEY", "una-clau-secreta-molt-dificil-de-endevinar")
@@ -152,8 +171,12 @@ def upload():
                 if img.mode not in ("RGB", "L"): img = img.convert("RGB")
                 master_img = resize_to_box(img, 1920, 1080, allow_upscale=False)
                 master_path = to_jpeg_path(MASTER_DIR / base_name); master_img.save(master_path, format="JPEG", quality=90, optimize=True)
+                storage_save(master_path, f"uploads/master/{master_path.name}")
+                
                 work_img = resize_to_box(img, 1360, 768, allow_upscale=False)
                 work_path = to_jpeg_path(WORK_DIR / base_name); work_img.save(work_path, format="JPEG", quality=90, optimize=True)
+                storage_save(work_path, f"uploads/work/{work_path.name}")
+                
                 uploaded_names.append(work_path.name)
         except Exception as e:
             print(f"No s'ha pogut processar {f.filename}: {e}")
@@ -188,6 +211,12 @@ def delete_image(filename):
 @app.get("/uploads/<path:filename>")
 def uploaded_file(filename):
     p_edit = EDITED_DIR / filename
+    p_work = WORK_DIR / filename
+    
+    if IS_PROD:
+        if not p_edit.exists(): storage_download(f"uploads/edited/{filename}", p_edit)
+        if not p_work.exists() and not p_edit.exists(): storage_download(f"uploads/work/{filename}", p_work)
+
     directory_to_check = EDITED_DIR if p_edit.exists() else WORK_DIR
     response = make_response(send_from_directory(directory_to_check, filename))
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
@@ -203,7 +232,9 @@ def save_edit(filename):
     if not f: return jsonify(ok=False, error="No s'ha rebut cap arxiu.")
     EDITED_DIR.mkdir(parents=True, exist_ok=True)
     out_path = EDITED_DIR / Path(secure_filename(filename)).name
-    f.save(out_path); return jsonify(ok=True, path=str(out_path))
+    f.save(out_path)
+    storage_save(out_path, f"uploads/edited/{out_path.name}")
+    return jsonify(ok=True, path=str(out_path))
 
 @app.post("/generate")
 def generate():
@@ -222,11 +253,20 @@ def generate():
     for name in images_ordered:
         try:
             p_edit = EDITED_DIR / name
+            p_master = MASTER_DIR / name
+            p_work = WORK_DIR / name
+            
+            if IS_PROD:
+                if not p_edit.exists(): storage_download(f"uploads/edited/{name}", p_edit)
+                if not p_edit.exists() and not p_master.exists(): storage_download(f"uploads/master/{name}", p_master)
+                if not p_edit.exists() and not p_master.exists() and not p_work.exists(): storage_download(f"uploads/work/{name}", p_work)
+
             if p_edit.exists(): src_path = p_edit
             else:
-                src_path = MASTER_DIR / name
+                src_path = p_master
                 if not src_path.exists():
-                    alt = WORK_DIR / name; src_path = alt if alt.exists() else src_path
+                    src_path = p_work if p_work.exists() else src_path
+            
             with Image.open(src_path) as img:
                 if img.mode in ('RGBA', 'P'): img = img.convert('RGB')
                 img2 = resize_to_box(img, target_w, target_h, allow_upscale=allow_up)
@@ -322,11 +362,27 @@ def generate():
     safe_nat = nat_code.replace('/', '_') if nat_code else "SENSE_NAT"
     report_name = f'Informe_{safe_nat}_{int(time.time())}.docx'
     report_path = REPORTS_DIR / report_name; doc.save(report_path)
+    storage_save(report_path, f"reports/{report_name}")
     return redirect(url_for('download_report', filename=report_name))
 
 @app.route('/report/<path:filename>')
 def download_report(filename):
-    return send_from_directory(REPORTS_DIR, filename, as_attachment=True)
+    if IS_PROD:
+        bucket = get_bucket()
+        if not bucket: return "Storage error", 500
+        blob = bucket.blob(f"reports/{filename}")
+        if not blob.exists():
+            return "Report not found", 404
+        
+        file_stream = io.BytesIO()
+        blob.download_to_file(file_stream)
+        file_stream.seek(0)
+        
+        return send_from_directory(REPORTS_DIR, filename, as_attachment=True) if (REPORTS_DIR/filename).exists() else make_response(file_stream.read(), 200, {'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'Content-Disposition': f'attachment; filename="{filename}"'})
+    else:
+        return send_from_directory(REPORTS_DIR, filename, as_attachment=True)
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5051, debug=False)
+    default_port = 8080 if IS_PROD else 5051
+    port = int(os.environ.get("PORT", default_port))
+    app.run(host="0.0.0.0", port=port, debug=not IS_PROD)
