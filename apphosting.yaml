@@ -1,0 +1,14 @@
+kind: "AppHostingYaml"
+apiVersion: "v1alpha"
+runConfig:
+  cpu: 1
+  memoryMiB: 512
+  minInstances: 0
+  maxInstances: 10
+env:
+  - name: PROJECT_ID
+    value: "infofoto-vector-art"
+  - name: GOOGLE_CLIENT_ID
+    value: "814718439112-2hcqqhsbbb2b67btpcqgtepakhmkhkkk.apps.googleusercontent.com"
+  - name: SECRET_KEY
+    value: "una-clau-secreta-molt-dificil-de-endevinar"

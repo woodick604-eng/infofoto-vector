@@ -77,6 +77,8 @@ def storage_download(storage_rel_path: str, local_path: Path):
 
 app = Flask(__name__, template_folder=str(BASE_DIR/"templates"), static_folder=str(BASE_DIR/"static"))
 app.secret_key = os.environ.get("SECRET_KEY", "una-clau-secreta-molt-dificil-de-endevinar")
+app.config['GOOGLE_CLIENT_ID'] = os.environ.get("GOOGLE_CLIENT_ID", "814718439112-2hcqqhsbbb2b67btpcqgtepakhmkhkkk.apps.googleusercontent.com")
+
 
 def resize_to_box(img: Image.Image, max_w: int, max_h: int, allow_upscale: bool=False) -> Image.Image:
     w, h = img.size
