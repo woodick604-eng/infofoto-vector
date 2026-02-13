@@ -1,5 +1,5 @@
 # app.py — Dual workflow: 1360×768 (work) + 1920×1080 (report)
-import io, time, datetime
+import io, time, datetime, os
 from pathlib import Path
 import sys
 from typing import List
@@ -13,6 +13,10 @@ from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
 from PIL import Image, UnidentifiedImageError
 
+# Firebase imports
+import firebase_admin
+from firebase_admin import credentials, firestore, storage
+
 def resource_path(relative_path):
     try:
         base_path = Path(sys._MEIPASS)  # type: ignore[attr-defined]
@@ -20,8 +24,28 @@ def resource_path(relative_path):
         base_path = Path(__file__).resolve().parent
     return base_path / relative_path
 
+# Configuració Firebase
+
+IS_PROD = os.environ.get("K_SERVICE") is not None
+if not firebase_admin._apps:
+    if IS_PROD:
+        firebase_admin.initialize_app(options={'storageBucket': f"{os.environ.get('PROJECT_ID', 'infofoto-vector-art')}.appspot.com"})
+    else:
+        # Localment no inicialitzem si no tenim credencials, o usem emuladors
+        try:
+            firebase_admin.initialize_app()
+        except Exception:
+            pass
+
+db = firestore.client() if firebase_admin._apps else None
+
+def get_bucket():
+    if not firebase_admin._apps: return None
+    try: return storage.bucket()
+    except Exception: return None
+
 BASE_DIR    = resource_path(".")
-UPLOAD_DIR  = BASE_DIR / "Uploads"
+UPLOAD_DIR  = BASE_DIR / "uploads"
 MASTER_DIR  = UPLOAD_DIR / "master"
 WORK_DIR    = UPLOAD_DIR / "work"
 EDITED_DIR  = UPLOAD_DIR / "edited"
@@ -33,7 +57,7 @@ for d in (UPLOAD_DIR, MASTER_DIR, WORK_DIR, EDITED_DIR, REPORTS_DIR, STATIC_DIR)
     d.mkdir(parents=True, exist_ok=True)
 
 app = Flask(__name__, template_folder=str(BASE_DIR/"templates"), static_folder=str(BASE_DIR/"static"))
-app.secret_key = "una-clau-secreta-molt-dificil-de-endevinar"
+app.secret_key = os.environ.get("SECRET_KEY", "una-clau-secreta-molt-dificil-de-endevinar")
 
 def resize_to_box(img: Image.Image, max_w: int, max_h: int, allow_upscale: bool=False) -> Image.Image:
     w, h = img.size
