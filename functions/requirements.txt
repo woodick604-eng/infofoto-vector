@@ -1,0 +1,8 @@
+Flask
+Pillow
+python-docx
+gunicorn
+firebase-admin
+google-cloud-storage
+google-cloud-firestore
+firebase-functions
