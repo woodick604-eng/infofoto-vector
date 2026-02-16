@@ -1,0 +1,14 @@
+.gcloudignore
+.git
+.gitignore
+google-cloud-sdk/
+container/static/uploads/
+container/__pycache__/
+*.jpg
+*.png
+*.docx
+*.doc
+*.zip
+tmp/
+.DS_Store
+node_modules/

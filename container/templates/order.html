@@ -1,55 +1,377 @@
 <!DOCTYPE html>
 <html lang="ca">
+
 <head>
   <meta charset="utf-8">
   <title>Ordenar fotografies</title>
   <style>
-    body{font-family:Arial,sans-serif;margin:0;background:#708090}
-    .container{max-width:1100px;width:92%;margin:28px auto;padding:22px;background:#fff;color:#333;border-radius:10px;box-shadow:0 8px 20px rgba(0,0,0,.08)}
-    #imgList{list-style:none;padding:0;margin:-10px;display:flex;flex-wrap:wrap}
-    #imgList li{position:relative;margin:10px;border:1px solid #d0d7de;padding:6px;cursor:move;box-sizing:border-box;flex:1 0 calc(20% - 20px);max-width:calc(20% - 20px);border-radius:8px}
-    #imgList li.sortable-ghost{opacity:.4;background:#c0e8ff}
-    #imgList li.sortable-chosen{border-color:#007bff}
-    #imgList li img{display:block;width:100%;height:auto;border-radius:6px;pointer-events:none}
-    .btns{position:absolute;right:6px;bottom:6px;display:flex;gap:6px}
-    .btn{font-size:11px;line-height:1;padding:5px 6px;border-radius:12px;border:0;cursor:pointer;background:rgba(0,0,0,.55);color:#fff;opacity:.8}
-    .btn:hover{opacity:1}
-    .btn.del{background:rgba(231,76,60,.75)}
-    button[type=submit]{margin-top:16px;padding:12px 24px;font-size:16px;background:#007bff;color:#fff;border:none;border-radius:8px;cursor:pointer}
-    button[type=submit]:hover{background:#0056b3}
-    .meta{color:#444;margin:-4px 0 10px;font-size:14px;line-height:1.5}
-    .back-link{font-size:14px;margin-top:10px}
-    .back-link a{color:#007bff;text-decoration:none}
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #708090
+    }
+
+    .container {
+      max-width: 1100px;
+      width: 92%;
+      margin: 28px auto;
+      padding: 22px;
+      background: #fff;
+      color: #333;
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, .08)
+    }
+
+    #imgList {
+      list-style: none;
+      padding: 0;
+      margin: -10px;
+      display: flex;
+      flex-wrap: wrap
+    }
+
+    #imgList li {
+      position: relative;
+      margin: 10px;
+      border: 1px solid #d0d7de;
+      padding: 6px;
+      box-sizing: border-box;
+      flex: 1 0 calc(20% - 20px);
+      max-width: calc(20% - 20px);
+      border-radius: 8px
+    }
+
+    #imgList li.sortable-ghost {
+      opacity: .4;
+      background: #c0e8ff
+    }
+
+    #imgList li.sortable-chosen {
+      border-color: #007bff
+    }
+
+    #imgList li img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 6px;
+      cursor: move
+    }
+
+    .btns {
+      position: absolute;
+      right: 6px;
+      bottom: 6px;
+      display: flex;
+      gap: 6px
+    }
+
+    .btn {
+      font-size: 11px;
+      line-height: 1;
+      padding: 5px 6px;
+      border-radius: 12px;
+      border: 0;
+      cursor: pointer;
+      background: rgba(0, 0, 0, .55);
+      color: #fff;
+      opacity: .8
+    }
+
+    .btn:hover {
+      opacity: 1
+    }
+
+    .btn.del {
+      background: rgba(231, 76, 60, .75)
+    }
+
+    .photo-desc {
+      width: 100%;
+      margin-top: 8px;
+      padding: 6px;
+      font-size: 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box
+    }
+
+    .evolution-block {
+      margin-bottom: 24px;
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid #e1e4e8
+    }
+
+    .evolution-block label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #24292e
+    }
+
+    .evolution-block textarea {
+      width: 100%;
+      height: 100px;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #d1d5da;
+      font-family: inherit;
+      font-size: 14px;
+      box-sizing: border-box
+    }
+
+    button[type=submit] {
+      margin-top: 20px;
+      padding: 14px 28px;
+      font-size: 18px;
+      background: #28a745;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+      font-weight: 600
+    }
+
+    button[type=submit]:hover {
+      background: #218838
+    }
+
+    .meta {
+      color: #444;
+      margin: -4px 0 10px;
+      font-size: 14px;
+      line-height: 1.5
+    }
+
+    .back-link {
+      text-align: center;
+      margin-top: 20px
+    }
+
+    .back-link a {
+      color: #007bff;
+      text-decoration: none;
+      font-size: 14px
+    }
+
+    .error-msg {
+      background: #fee;
+      color: #c00;
+      padding: 10px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      border: 1px solid #ecc;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    #overlay {
+      position: fixed;
+      display: none;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, .85);
+      z-index: 9999;
+      cursor: wait;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: #fff
+    }
+
+    .loader {
+      border: 8px solid #f3f3f3;
+      border-top: 8px solid #28a745;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg)
+      }
+
+      100% {
+        transform: rotate(360deg)
+      }
+    }
   </style>
 </head>
+
 <body>
-<div class="container">
-  <h1>Ordenar fotografies</h1>
-  <p class="meta">
-    {% if nat or dil %}<strong>{% if nat %}NAT: {{ nat }}{% endif %}{% if nat and dil %} - {% endif %}{% if dil %}DIL: {{ dil }}{% endif %}</strong><br>{% endif %}
-    {% if tip1 or tip2 %}<strong>{% if tip1 %}TIP: {{ tip1 }}{% endif %}{% if tip1 and tip2 %} - {% endif %}{% if tip2 %}{{ tip2 }}{% endif %}</strong><br>{% endif %}
-    {% if jutjat or localitat %}<strong>Destinació:</strong> {{ jutjat }}{% if localitat %}, {{ localitat }}{% endif %}{% endif %}
-  </p>
-  <form id="generate-form" action="{{ url_for('generate') }}" method="post">
-    <input type="hidden" id="order" name="order">
-    <ul id="imgList">
-      {% for img in images %}
+  <div id="overlay">
+    <div class="loader"></div>
+    <div style="font-size:20px;text-align:center;padding:0 20px">Generant document...<br><span
+        style="font-size:14px;opacity:.8">Això pot trigar uns segons depenent del nombre d'imatges.</span></div>
+  </div>
+  <div class="container">
+    <h1>Ordenar fotografies <span style="font-size:12px;font-weight:400;opacity:.5">v{{ app_version }}</span></h1>
+
+    <p class="meta">
+      {% if nat or dil %}<strong>{% if nat %}NAT: {{ nat }}{% endif %}{% if nat and dil %} - {% endif %}{% if dil %}DIL:
+        {{ dil }}{% endif %}</strong><br>{% endif %}
+      {% if tip1 or tip2 %}<strong>{% if tip1 %}TIP: {{ tip1 }}{% endif %}{% if tip1 and tip2 %} - {% endif %}{% if tip2
+        %}{{ tip2 }}{% endif %}</strong><br>{% endif %}
+      {% if jutjat or localitat %}<strong>Destinació:</strong> {{ jutjat }}{% if localitat %}, {{ localitat }}{% endif
+      %}{% endif %}
+    </p>
+
+    {% if error %}<div class="error-msg">{{ error }}</div>{% endif %}
+    <form id="generate-form" action="{{ url_for('generate_api') }}" method="post">
+      <input type="hidden" name="sid" value="{{ request.args.get('sid', '') }}">
+      <div class="evolution-block">
+        <label for="evolucio">Descriu o penja la informació del Cas:</label>
+        <textarea id="evolucio" name="evolucio"
+          placeholder="Descriu breument com s'han produït els fets... (Aquest text servirà de base per a futures anàlisis d'IA)">{{ evolucio }}</textarea>
+      </div>
+
+      <input type="hidden" id="order" name="order">
+      <ul id="imgList">
+        {% for img in images %}
         <li data-filename="{{ img }}">
           <img src="{{ url_for('uploaded_file', filename=img) }}?ts={{ ts }}" alt="{{ img }}">
+          <input type="text" class="photo-desc" name="desc_{{ img }}" placeholder="Descripció de la foto..."
+            value="{{ image_descriptions.get(img, '') if image_descriptions else '' }}">
           <div class="btns">
             <a class="btn edit-btn" href="{{ url_for('edit', filename=img) }}" title="Editar">✎</a>
             <button type="button" class="btn del" title="Eliminar" onclick="removeImage(this)">✖</button>
           </div>
         </li>
-      {% endfor %}
-    </ul>
-    <button type="submit">Generar informe</button>
-  </form>
-  <p class="back-link"><a href="{{ url_for('index') }}">Tornar a l'inici</a></p>
-</div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
-<script>
-document.addEventListener("DOMContentLoaded",()=>{const t=document.getElementById("imgList"),e=()=>{const e=[...t.querySelectorAll("li")].map(t=>t.dataset.filename);document.getElementById("order").value=e.join(","),fetch("/update_order",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({order:e})})};new Sortable(t,{animation:150,ghostClass:"sortable-ghost",chosenClass:"sortable-chosen",onEnd:function(t){e()}}),t.querySelectorAll("li").forEach(t=>{t.addEventListener("dblclick",()=>{const e=t.querySelector("a.edit-btn");e&&(window.location.href=e.href)})}),document.getElementById("generate-form").addEventListener("submit",()=>{const e=[...t.querySelectorAll("li")].map(t=>t.dataset.filename);document.getElementById("order").value=e.join(",")}),t.querySelectorAll("li").length>0&&e()});function removeImage(t){const e=t.closest("li"),o=e.dataset.filename;confirm(`Segur que voleu eliminar ${o}?`)&&fetch(`/delete/${encodeURIComponent(o)}`,{method:"POST"}).then(t=>t.json()).then(o=>{e.remove();const n=document.getElementById("imgList"),r=[...n.querySelectorAll("li")].map(t=>t.dataset.filename);document.getElementById("order").value=r.join(","),fetch("/update_order",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({order:r})})})}
-</script>
+        {% endfor %}
+      </ul>
+      {% if not images %}
+      <div style="text-align:center; padding:20px; border:2px dashed #ccc; border-radius:10px; margin-bottom:20px;">
+        <p>No hi ha imatges per mostrar.</p>
+        <a href="{{ url_for('index') }}" class="btn"
+          style="background:#007bff; color:#fff; padding:10px 20px; text-decoration:none; display:inline-block; border-radius:6px;">Tornar
+          a pujar imatges</a>
+      </div>
+      {% endif %}
+      <button type="submit">Generar informe final</button>
+    </form>
+    <p class="back-link"><a href="{{ url_for('index', sid=request.args.get('sid', '')) }}">Tornar a l'inici</a></p>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const imgList = document.getElementById("imgList");
+      const orderInput = document.getElementById("order");
+      const generateForm = document.getElementById("generate-form");
+
+      const updateOrderValue = () => {
+        const filenames = [...imgList.querySelectorAll("li")].map(li => li.dataset.filename);
+        const orderStr = filenames.join(",");
+        orderInput.value = orderStr;
+        console.log("Ordre actualitzat:", orderStr);
+        return orderStr;
+      };
+
+      // Inicialitzar l'ordre immediatament
+      updateOrderValue();
+
+      if (typeof Sortable !== 'undefined') {
+        new Sortable(imgList, {
+          animation: 150,
+          ghostClass: "sortable-ghost",
+          chosenClass: "sortable-chosen",
+          draggable: "li",
+          handle: "img",
+          filter: "input, .btn, .btns, a",
+          preventOnFilter: false,
+          onEnd: function () {
+            const newOrder = updateOrderValue();
+            fetch("/update_order", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ order: newOrder.split(",") })
+            });
+          }
+        });
+      } else {
+        console.error("Sortable no s'ha carregat!");
+      }
+
+      imgList.querySelectorAll("li").forEach(li => {
+        li.addEventListener("dblclick", () => {
+          const editBtn = li.querySelector("a.edit-btn");
+          if (editBtn) window.location.href = editBtn.href;
+        })
+      });
+
+      generateForm.addEventListener("submit", async (ev) => {
+        ev.preventDefault(); // Evitar enviament clàssic que bloqueja
+
+        const currentOrder = updateOrderValue();
+        if (!currentOrder || currentOrder.trim() === "") {
+          alert("⚠️ Error: L'ordre de les fotografies no s'ha pogut determinar.");
+          return;
+        }
+
+        const ov = document.getElementById('overlay');
+        const ovText = ov.querySelector('div:last-child');
+        ov.style.display = 'flex';
+
+        const formData = new FormData(generateForm);
+        try {
+          const startRes = await fetch('/generate_api', { method: 'POST', body: formData });
+          if (!startRes.ok) throw new Error("Error iniciant generació.");
+
+          // Iniciar polling d'estat
+          const sid = formData.get('sid');
+          const statusPoll = setInterval(async () => {
+            try {
+              const r = await fetch('/status');
+              const d = await r.json();
+              if (d.status) {
+                ovText.innerHTML = `Analitzant fotos amb IA...<br><span style="font-size:14px; color:#28a745">${d.status}</span>`;
+                if (d.status === "[READY]") {
+                  clearInterval(statusPoll);
+                  window.location.href = `/review?sid=${sid}`;
+                } else if (d.status.startsWith("[ERROR]")) {
+                  clearInterval(statusPoll);
+                  alert("Error en la generació: " + d.status);
+                  ov.style.display = 'none';
+                }
+              }
+            } catch (e) { console.error("Poll error:", e); }
+          }, 1500);
+
+        } catch (err) {
+          alert("Error: " + err.message);
+          ov.style.display = 'none';
+        }
+      });
+
+    });
+
+    function removeImage(btn) {
+      const li = btn.closest("li"), filename = li.dataset.filename;
+      if (confirm(`Segur que voleu eliminar ${filename}?`)) {
+        fetch(`/delete/${encodeURIComponent(filename)}`, { method: "POST" }).then(res => res.json()).then(data => {
+          li.remove();
+          const imgList = document.getElementById("imgList");
+          const filenames = [...imgList.querySelectorAll("li")].map(l => l.dataset.filename);
+          document.getElementById("order").value = filenames.join(",");
+          fetch("/update_order", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ order: filenames })
+          });
+        });
+      }
+    }
+  </script>
+
 </body>
+
 </html>

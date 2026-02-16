@@ -1,7 +1,10 @@
 Flask
+Flask-Session
 Pillow
 python-docx
 gunicorn
 firebase-admin
 google-cloud-storage
 google-cloud-firestore
+google-cloud-aiplatform
+google-generativeai

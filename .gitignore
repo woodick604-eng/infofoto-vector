@@ -29,5 +29,12 @@ container/Uploads/edited/*
 # macOS
 .DS_Store
 
+
 # Word docs
 *.docx
+
+# Heavy Binaries
+google-cloud-sdk/
+*.tar.gz
+*.zip
+*.bak

@@ -13,9 +13,11 @@ if command -v gcloud &> /dev/null; then
     gcloud run deploy infofoto-vector-service \
       --source . \
       --platform managed \
-      --region us-central1 \
+      --region europe-west1 \
       --allow-unauthenticated \
       --project infofoto-vector-art \
+      --memory 2Gi \
+      --timeout 300 \
       --set-env-vars PROJECT_ID=infofoto-vector-art,GOOGLE_CLIENT_ID=814718439112-2hcqqhsbbb2b67btpcqgtepakhmkhkkk.apps.googleusercontent.com
 else
     echo "⚠️ No s'ha trobat gcloud. Pots instal·lar-lo o activar les APIs a la consola:"
