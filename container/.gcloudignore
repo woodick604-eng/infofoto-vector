@@ -1,0 +1,13 @@
+.gcloudignore
+.git
+.gitignore
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.DS_Store
+uploads/
+reports/
+sessions/
+google-cloud-sdk/

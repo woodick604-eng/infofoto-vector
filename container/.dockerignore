@@ -1,0 +1,9 @@
+venv**/
+**/venv
+__pycache__**/
+**/.git
+**/.DS_Store
+uploads**/
+reports**/
+sessions**/
+google-cloud-sdk/
