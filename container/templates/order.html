@@ -232,7 +232,7 @@
       <div class="evolution-block">
         <label for="evolucio">Descriu o penja la informació del Cas:</label>
         <textarea id="evolucio" name="evolucio"
-          placeholder="Descriu breument com s'han produït els fets... (Aquest text servirà de base per a futures anàlisis d'IA)">{{ evolucio }}</textarea>
+          placeholder="Descriu breument com s'han produït els fets... (Aquest text servirà de base per a la generació de l'informe)">{{ evolucio }}</textarea>
       </div>
 
       <input type="hidden" id="order" name="order">
@@ -333,7 +333,7 @@
               const r = await fetch('/status');
               const d = await r.json();
               if (d.status) {
-                ovText.innerHTML = `Analitzant fotos amb IA...<br><span style="font-size:14px; color:#28a745">${d.status}</span>`;
+                ovText.innerHTML = `Analitzant fotos i generant informe tècnic...<br><span style="font-size:14px; color:#28a745">${d.status}</span>`;
                 if (d.status === "[READY]") {
                   clearInterval(statusPoll);
                   window.location.href = `/review?sid=${sid}`;

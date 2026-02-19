@@ -11,7 +11,7 @@
         "source": "**",
         "run": {
           "serviceId": "infofoto-vector-service",
-          "region": "us-central1"
+          "region": "europe-west1"
         }
       }
     ]
