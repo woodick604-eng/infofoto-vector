@@ -222,7 +222,7 @@
     <div class="container">
         <!-- Logo Removed as per user request -->
         <h1>Informe Fotogràfic</h1>
-        <p style="text-align:center;margin:-10px 0 15px;font-size:12px;opacity:.6">v{{ app_version }}</p>
+        <p style="text-align:center;margin:-10px 0 15px;font-size:12px;opacity:.6">v{{ app_version }} @5085</p>
 
         <form action="/upload" method="post" enctype="multipart/form-data">
             <div class="form-grid">
@@ -319,7 +319,7 @@
                     });
                     // Afegir destinació (radio buttons)
                     const dest = form.querySelector('input[name="qualitat"]:checked');
-                    if(dest) startFormData.append("qualitat", dest.value);
+                    if (dest) startFormData.append("qualitat", dest.value);
 
                     try {
                         startRes = await fetch('/start_session', { method: 'POST', body: startFormData });

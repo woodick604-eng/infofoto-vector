@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ca">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Accés Restringit</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body,
+        html {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #6b7280;
+        }
+
+        body {
+            display: grid;
+            place-items: center;
+            font-family: 'Inter', sans-serif;
+            color: #f3f4f6;
+        }
+
+        .login-card {
+            background-color: #374151;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            width: 90%;
+            max-width: 320px;
+        }
+
+        h1 {
+            margin-bottom: 24px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 16px;
+            border: 1px solid #4b5563;
+            border-radius: 6px;
+            background-color: #1f2937;
+            color: white;
+            font-size: 18px;
+            text-align: center;
+            letter-spacing: 4px;
+        }
+
+        input:focus {
+            outline: 2px solid #3b82f6;
+            border-color: transparent;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background-color: #2563eb;
+        }
+
+        .error {
+            color: #ef4444;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-card">
+        <h1>Informe Fotogràfic</h1>
+        {% if error %}
+        <div class="error">{{ error }}</div>
+        {% endif %}
+        <form method="POST">
+            <input type="password" name="pin" placeholder="PIN" autofocus required maxlength="4" pattern="[0-9]*"
+                inputmode="numeric">
+            <button type="submit">Accedir</button>
+        </form>
+    </div>
+</body>
+
+</html>
